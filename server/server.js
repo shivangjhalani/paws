@@ -2,7 +2,7 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const express = require('express');
 const cors = require('cors');
-const { User, Adopter, Rehomer, Pet } = require('./models/user');
+const { User, Pet, Adopter, Rehomer } = require('./models');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 

@@ -1,3 +1,4 @@
+// models/user.js
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
@@ -6,6 +7,7 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
     trim: true,
+    lowercase: true,
   },
   password: {
     type: String,
@@ -14,10 +16,12 @@ const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
+    trim: true,
   },
   phone: {
     type: String,
     required: true,
+    trim: true,
   },
   address: {
     street: String,
@@ -38,8 +42,16 @@ const userSchema = new mongoose.Schema({
   }
 }, {
   discriminatorKey: 'userType',
+  timestamps: true
 });
+
+// Add methods to user schema
+userSchema.methods.toJSON = function() {
+  const obj = this.toObject();
+  delete obj.password;
+  return obj;
+};
 
 const User = mongoose.model('User', userSchema);
 
-module.exports = { User }
+module.exports = User;
