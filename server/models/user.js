@@ -45,7 +45,6 @@ const userSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Add methods to user schema
 userSchema.methods.toJSON = function() {
   const obj = this.toObject();
   delete obj.password;

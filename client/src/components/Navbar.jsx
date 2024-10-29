@@ -13,6 +13,7 @@ const Navbar = () => {
     <div>
       <nav className="flex items-center justify-between p-4">
         {/* Logo and Brand */}
+        <Link to="/">
         <div className="flex items-center gap-2">
           <div className="h-14 w-14">
             <img
@@ -23,6 +24,8 @@ const Navbar = () => {
           </div>
           <span className="font-bold text-3xl">pawfect</span>
         </div>
+        </Link>
+
         <NavigationMenu>
           <NavigationMenuList>
             <NavigationMenuItem>
@@ -56,7 +59,14 @@ const Navbar = () => {
           </NavigationMenuList>
         </NavigationMenu>
         {/* CTA Button */}
-        <Button>Find a PawPal</Button>
+        <div>
+          <Link to="/login">
+            <Button className="mr-4">Log In</Button>
+          </Link>
+          <Link to="/signup">
+            <Button>Join paws</Button>
+          </Link>
+        </div>
       </nav>
     </div>
   )
