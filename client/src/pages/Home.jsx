@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button"
+import { Link } from "react-router-dom";
 export default function Home() {
   return (
     <div className="flex flex-row items-center justify-between p-8 w-full max-w-7xl mx-auto gap-8">
@@ -12,8 +13,12 @@ export default function Home() {
           The new revolutionary pet finding platform. For dog owners, made by dog owners.
         </p>
         <div className="flex space-x-4 pt-4">
-          <Button>Adopt</Button>
-          <Button>Rehome</Button>
+          <Link to="/signup">
+            <Button>Adopt</Button>
+          </Link>
+          <Link to="/signup">
+            <Button>Rehome</Button>
+          </Link>
         </div>
       </div>
 
