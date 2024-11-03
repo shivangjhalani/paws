@@ -2,8 +2,16 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:8080/api';
 
-// Add auth token to all requests
-axios.interceptors.request.use((config) => {
+// Create axios instance with base URL
+const api = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Add authentication token to requests
+api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -11,25 +19,41 @@ axios.interceptors.request.use((config) => {
   return config;
 });
 
-const api = {
-  // Auth endpoints
-  login: (credentials) => axios.post(`${API_URL}/login`, credentials),
-  signup: (userData) => axios.post(`${API_URL}/signup`, userData),
-  logout: () => axios.post(`${API_URL}/logout`),
-  
-  // User endpoints
-  getUserProfile: () => axios.get(`${API_URL}/user/profile`),
-  
-  // Pet endpoints
-  getPets: () => axios.get(`${API_URL}/pets`),
-  createPet: (petData) => axios.post(`${API_URL}/pets`, petData),
-  likePet: (petId, userId) => axios.post(`${API_URL}/pets/${petId}/like`, { userId }),
-  
-  // Liked pets
-  getLikedPets: (userId) => axios.get(`${API_URL}/users/${userId}/liked-pets`),
-  
-  // Adoption endpoints
-  createAdoption: (adoptionData) => axios.post(`${API_URL}/adoptions`, adoptionData)
+export const auth = {
+  signup: async (userData) => {
+    try {
+      const response = await api.post('/signup', userData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: 'An error occurred during signup' };
+    }
+  },
+
+  login: async (credentials) => {
+    try {
+      const response = await api.post('/login', credentials);
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('userType', response.data.userType);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: 'Invalid credentials' };
+    }
+  },
+
+  logout: () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userType');
+  },
+
+  getCurrentUser: async () => {
+    try {
+      const response = await api.get('/profile');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: 'Error fetching user profile' };
+    }
+  },
 };
 
 export default api;
+export { pets } from './petapi'

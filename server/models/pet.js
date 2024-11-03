@@ -1,151 +1,94 @@
-// models/pet.js
 const mongoose = require('mongoose');
 
 const petSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    trim: true,
+    trim: true
+  },
+  species: {
+    type: String,
+    required: true,
+    trim: true
   },
   breed: {
     type: String,
     required: true,
+    trim: true
   },
   age: {
-    years: {
-      type: Number,
-      required: true,
-      min: 0,
-      max: 30,
-    },
-    months: {
-      type: Number,
-      required: true,
-      min: 0,
-      max: 11,
-    },
+    type: Number,
+    required: true,
+    min: 0
   },
   gender: {
     type: String,
-    enum: ['male', 'female'],
     required: true,
+    enum: ['male', 'female']
   },
   size: {
     type: String,
-    enum: ['small', 'medium', 'large'],
     required: true,
+    enum: ['small', 'medium', 'large']
   },
-  color: String,
-  images: [{
-    url: {
-      type: String,
-      required: true,
-    },
-    isPrimary: {
-      type: Boolean,
-      default: false,
-    },
-  }],
   description: {
     type: String,
-    required: true,
-    minlength: 10,
+    required: true
   },
-  healthInfo: {
-    vaccinated: {
-      type: Boolean,
-      default: false,
-    },
-    spayedNeutered: {
-      type: Boolean,
-      default: false,
-    },
-    microchipped: {
-      type: Boolean,
-      default: false,
-    },
-    specialNeeds: String,
-    medicalHistory: String,
+  images: [{
+    type: String,
+    required: true
+  }],
+  healthStatus: {
+    vaccinated: Boolean,
+    neutered: Boolean,
+    specialNeeds: Boolean,
+    specialNeedsDescription: String
   },
   behavior: {
-    goodWithKids: {
-      type: Boolean,
-      default: false,
-    },
-    goodWithOtherDogs: {
-      type: Boolean,
-      default: false,
-    },
-    goodWithCats: {
-      type: Boolean,
-      default: false,
-    },
-    energyLevel: {
+    goodWithKids: Boolean,
+    goodWithPets: Boolean,
+    activityLevel: {
       type: String,
-      enum: ['low', 'medium', 'high'],
-      required: true,
-    },
-    trained: {
-      type: Boolean,
-      default: false,
-    },
-    trainingDetails: String,
+      enum: ['low', 'medium', 'high']
+    }
   },
   status: {
     type: String,
+    required: true,
     enum: ['available', 'pending', 'adopted'],
-    default: 'available',
+    default: 'available'
+  },
+  rehomerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
   },
   location: {
-    city: {
-      type: String,
-      required: true,
-    },
-    state: {
-      type: String,
-      required: true,
-    },
-    country: {
-      type: String,
-      required: true,
-    },
-  },
-  rehomer: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-  },
-  adopter: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    type: String,
+    required: true
   },
   adoptionFee: {
     type: Number,
-    min: 0,
-    default: 0,
+    required: true,
+    min: 0
   },
-}, {
-  timestamps: true
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  }
 });
 
-// Add indexes for common queries
-petSchema.index({ status: 1, 'location.city': 1, 'location.state': 1 });
-petSchema.index({ rehomer: 1, status: 1 });
-petSchema.index({ breed: 1, status: 1 });
-
-// Virtual for pet's age in readable format
-petSchema.virtual('ageString').get(function() {
-  let age = '';
-  if (this.age.years > 0) {
-    age += `${this.age.years} year${this.age.years > 1 ? 's' : ''}`;
-  }
-  if (this.age.months > 0) {
-    if (age) age += ' and ';
-    age += `${this.age.months} month${this.age.months > 1 ? 's' : ''}`;
-  }
-  return age;
+// Update timestamp on save
+petSchema.pre('save', function(next) {
+  this.updatedAt = Date.now();
+  next();
 });
 
 const Pet = mongoose.model('Pet', petSchema);
 
-module.exports = Pet;
+module.exports = { Pet };

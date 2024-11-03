@@ -1,310 +1,150 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/context/AuthContext';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import api from '@/services/api';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-export default function Signup() {
-  const navigate = useNavigate();
-  const { login } = useAuth();
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  
-  const [adopterForm, setAdopterForm] = useState({
+const Signup = () => {
+  const { signup, error, loading } = useAuth();
+  const [formData, setFormData] = useState({
     email: '',
     password: '',
-    confirmPassword: '',
-    firstName: '',
-    lastName: '',
-    phone: ''
-  });
-
-  const [rehomerForm, setRehomerForm] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    organizationName: '',
+    name: '',
     phone: '',
-    address: ''
+    location: '',
+    userType: 'adopter' // default value
   });
 
-  const handleAdopterSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setIsLoading(true);
-
-    if (adopterForm.password !== adopterForm.confirmPassword) {
-      setError('Passwords do not match');
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      // In a real app, you would make an API call here
-      // const response = await api.signup({ 
-      //   ...adopterForm, 
-      //   userType: 'adopter' 
-      // });
-      
-      // Simulating successful signup
-      const userData = {
-        id: Date.now().toString(),
-        email: adopterForm.email,
-        firstName: adopterForm.firstName,
-        lastName: adopterForm.lastName
-      };
-      
-      login(userData, 'adopter');
-      navigate('/explore');
-    } catch (err) {
-      setError('Failed to create account. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
+  const handleChange = (e) => {
+    setFormData(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
   };
 
-  const handleRehomerSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setIsLoading(true);
-
-    if (rehomerForm.password !== rehomerForm.confirmPassword) {
-      setError('Passwords do not match');
-      setIsLoading(false);
-      return;
-    }
-
     try {
-      // In a real app, you would make an API call here
-      // const response = await api.signup({ 
-      //   ...rehomerForm, 
-      //   userType: 'rehomer' 
-      // });
-      
-      // Simulating successful signup
-      const userData = {
-        id: Date.now().toString(),
-        email: rehomerForm.email,
-        organizationName: rehomerForm.organizationName
-      };
-      
-      login(userData, 'rehomer');
-      navigate('/list-pets');
+      await signup(formData);
     } catch (err) {
-      setError('Failed to create account. Please try again.');
-    } finally {
-      setIsLoading(false);
+      // Error is handled by AuthContext
+      console.error('Signup error:', err);
     }
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-2xl">
-      <Card>
+    <div className="container mx-auto flex justify-center items-center min-h-[calc(100vh-4rem)]">
+      <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl text-center">Create Account</CardTitle>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="adopter">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="adopter">Pet Adopter</TabsTrigger>
-              <TabsTrigger value="rehomer">Pet Rehomer</TabsTrigger>
-            </TabsList>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                required
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="Enter your email"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                required
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Choose a password"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="name">Full Name</Label>
+              <Input
+                id="name"
+                name="name"
+                type="text"
+                required
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Enter your full name"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone Number</Label>
+              <Input
+                id="phone"
+                name="phone"
+                type="tel"
+                required
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="Enter your phone number"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="location">Location</Label>
+              <Input
+                id="location"
+                name="location"
+                type="text"
+                required
+                value={formData.location}
+                onChange={handleChange}
+                placeholder="Enter your location"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="userType">I want to...</Label>
+              <select
+                id="userType"
+                name="userType"
+                value={formData.userType}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border rounded-md"
+                required
+              >
+                <option value="adopter">Adopt a pet</option>
+                <option value="rehomer">Rehome a pet</option>
+              </select>
+            </div>
 
             {error && (
-              <div className="bg-destructive/15 text-destructive px-4 py-2 rounded-md mt-4">
-                {error}
-              </div>
+              <div className="text-red-500 text-sm">{error}</div>
             )}
 
-            <TabsContent value="adopter">
-              <form onSubmit={handleAdopterSubmit} className="space-y-4 mt-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="firstName">First Name</Label>
-                    <Input
-                      id="firstName"
-                      required
-                      value={adopterForm.firstName}
-                      onChange={(e) => setAdopterForm({
-                        ...adopterForm,
-                        firstName: e.target.value
-                      })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="lastName">Last Name</Label>
-                    <Input
-                      id="lastName"
-                      required
-                      value={adopterForm.lastName}
-                      onChange={(e) => setAdopterForm({
-                        ...adopterForm,
-                        lastName: e.target.value
-                      })}
-                    />
-                  </div>
-                </div>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={loading}
+            >
+              {loading ? 'Creating account...' : 'Sign Up'}
+            </Button>
 
-                <div className="space-y-2">
-                  <Label htmlFor="adopter-email">Email</Label>
-                  <Input
-                    id="adopter-email"
-                    type="email"
-                    required
-                    value={adopterForm.email}
-                    onChange={(e) => setAdopterForm({
-                      ...adopterForm,
-                      email: e.target.value
-                    })}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="adopter-phone">Phone Number</Label>
-                  <Input
-                    id="adopter-phone"
-                    type="tel"
-                    required
-                    value={adopterForm.phone}
-                    onChange={(e) => setAdopterForm({
-                      ...adopterForm,
-                      phone: e.target.value
-                    })}
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="adopter-password">Password</Label>
-                    <Input
-                      id="adopter-password"
-                      type="password"
-                      required
-                      value={adopterForm.password}
-                      onChange={(e) => setAdopterForm({
-                        ...adopterForm,
-                        password: e.target.value
-                      })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="adopter-confirm-password">Confirm Password</Label>
-                    <Input
-                      id="adopter-confirm-password"
-                      type="password"
-                      required
-                      value={adopterForm.confirmPassword}
-                      onChange={(e) => setAdopterForm({
-                        ...adopterForm,
-                        confirmPassword: e.target.value
-                      })}
-                    />
-                  </div>
-                </div>
-
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? 'Creating Account...' : 'Sign Up as Adopter'}
-                </Button>
-              </form>
-            </TabsContent>
-
-            <TabsContent value="rehomer">
-              <form onSubmit={handleRehomerSubmit} className="space-y-4 mt-4">
-                <div className="space-y-2">
-                  <Label htmlFor="organizationName">Organization Name</Label>
-                  <Input
-                    id="organizationName"
-                    required
-                    value={rehomerForm.organizationName}
-                    onChange={(e) => setRehomerForm({
-                      ...rehomerForm,
-                      organizationName: e.target.value
-                    })}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="rehomer-email">Email</Label>
-                  <Input
-                    id="rehomer-email"
-                    type="email"
-                    required
-                    value={rehomerForm.email}
-                    onChange={(e) => setRehomerForm({
-                      ...rehomerForm,
-                      email: e.target.value
-                    })}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="rehomer-phone">Phone Number</Label>
-                  <Input
-                    id="rehomer-phone"
-                    type="tel"
-                    required
-                    value={rehomerForm.phone}
-                    onChange={(e) => setRehomerForm({
-                      ...rehomerForm,
-                      phone: e.target.value
-                    })}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="address">Address</Label>
-                  <Input
-                    id="address"
-                    required
-                    value={rehomerForm.address}
-                    onChange={(e) => setRehomerForm({
-                      ...rehomerForm,
-                      address: e.target.value
-                    })}
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="rehomer-password">Password</Label>
-                    <Input
-                      id="rehomer-password"
-                      type="password"
-                      required
-                      value={rehomerForm.password}
-                      onChange={(e) => setRehomerForm({
-                        ...rehomerForm,
-                        password: e.target.value
-                      })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="rehomer-confirm-password">Confirm Password</Label>
-                    <Input
-                      id="rehomer-confirm-password"
-                      type="password"
-                      required
-                      value={rehomerForm.confirmPassword}
-                      onChange={(e) => setRehomerForm({
-                        ...rehomerForm,
-                        confirmPassword: e.target.value
-                      })}
-                    />
-                  </div>
-                </div>
-
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? 'Creating Account...' : 'Sign Up as Rehomer'}
-                </Button>
-              </form>
-            </TabsContent>
-          </Tabs>
+            <p className="text-center text-sm">
+              Already have an account?{' '}
+              <Link to="/login" className="text-blue-500 hover:underline">
+                Login
+              </Link>
+            </p>
+          </form>
         </CardContent>
       </Card>
     </div>
   );
-}
+};
+
+export default Signup;

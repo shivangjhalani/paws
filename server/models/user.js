@@ -1,4 +1,3 @@
-// models/user.js
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
@@ -7,50 +6,38 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
     trim: true,
-    lowercase: true,
+    lowercase: true
   },
   password: {
     type: String,
-    required: true,
+    required: true
   },
   name: {
     type: String,
     required: true,
-    trim: true,
+    trim: true
   },
   phone: {
     type: String,
     required: true,
-    trim: true,
+    trim: true
   },
-  address: {
-    street: String,
-    city: String,
-    state: String,
-    zipCode: String,
-    country: String,
-  },
-  profilePicture: String,
-  createdAt: {
-    type: Date,
-    default: Date.now,
+  location: {
+    type: String,
+    required: true,
+    trim: true
   },
   userType: {
     type: String,
-    enum: ['adopter', 'rehomer'],
     required: true,
+    enum: ['adopter', 'rehomer']
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
   }
-}, {
-  discriminatorKey: 'userType',
-  timestamps: true
 });
-
-userSchema.methods.toJSON = function() {
-  const obj = this.toObject();
-  delete obj.password;
-  return obj;
-};
 
 const User = mongoose.model('User', userSchema);
 
-module.exports = User;
+module.exports = { User };

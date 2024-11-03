@@ -1,35 +1,32 @@
+import { Link } from "react-router-dom"
+import { Button } from "@/components/ui/button"
 import {
   NavigationMenu,
+  NavigationMenuList,
   NavigationMenuItem,
   NavigationMenuLink,
-  NavigationMenuList,
-  navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
-import { Button } from "@/components/ui/button"
-import { Link, useNavigate } from "react-router-dom"
-import { useAuth } from "@/context/AuthContext"
+import { useAuth } from "../context/AuthContext"
 
-const Navbar = () => {
-  const { auth, logout } = useAuth();
-  const navigate = useNavigate();
-
-  // Custom component to handle navigation menu items
-  const NavItem = ({ to, children }) => (
+const NavItem = ({ to, children }) => {
+  return (
     <NavigationMenuItem>
-      <NavigationMenuLink 
-        className={navigationMenuTriggerStyle()}
-        onClick={() => navigate(to)}
-        style={{ cursor: 'pointer' }}
+      <NavigationMenuLink
+        asChild
+        className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
       >
-        {children}
+        <Link to={to}>{children}</Link>
       </NavigationMenuLink>
     </NavigationMenuItem>
   );
+};
+
+const Navbar = () => {
+  const { isAuthenticated, userType, logout } = useAuth();
 
   return (
     <div>
       <nav className="flex items-center justify-between p-4">
-        {/* Logo and Brand */}
         <Link to="/">
           <div className="flex items-center gap-2">
             <div className="h-14 w-14">
@@ -42,31 +39,16 @@ const Navbar = () => {
             <span className="font-bold text-3xl">pawfect</span>
           </div>
         </Link>
-
         <NavigationMenu>
           <NavigationMenuList>
             <NavItem to="/">Home</NavItem>
             <NavItem to="/about">About</NavItem>
             <NavItem to="/faq">FAQ</NavItem>
             <NavItem to="/contact">Contact</NavItem>
-            
-            {/* Conditional navigation items based on auth state */}
-            {auth.isAuthenticated && auth.userType === 'adopter' && (
-              <>
-                <NavItem to="/explore">Explore Pets</NavItem>
-                <NavItem to="/liked">Liked Pets</NavItem>
-              </>
-            )}
-            
-            {auth.isAuthenticated && auth.userType === 'rehomer' && (
-              <NavItem to="/list-pets">List Pets</NavItem>
-            )}
           </NavigationMenuList>
         </NavigationMenu>
-
-        {/* Authentication buttons */}
         <div>
-          {!auth.isAuthenticated ? (
+          {!isAuthenticated ? (
             <>
               <Link to="/login">
                 <Button className="mr-4">Log In</Button>
@@ -77,7 +59,7 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <Link to={`/dashboard/${auth.userType}`}>
+              <Link to={`/dashboard/${userType}`}>
                 <Button variant="outline" className="mr-4">Dashboard</Button>
               </Link>
               <Button onClick={logout}>Logout</Button>
