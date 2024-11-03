@@ -9,21 +9,59 @@
 │   ├── index.html
 │   ├── jsconfig.app.json
 │   ├── jsconfig.json
-│   ├── node_modules
 │   ├── package.json
 │   ├── package-lock.json
 │   ├── postcss.config.js
 │   ├── public
+│   │   ├── hero.png
+│   │   └── paw.png
 │   ├── README.md
 │   ├── src
+│   │   ├── App.jsx
+│   │   ├── assets
+│   │   ├── components
+│   │   │   ├── Navbar.jsx
+│   │   │   ├── ProtectedRoute.jsx
+│   │   │   └── ui
+│   │   │       └── ...
+│   │   ├── context
+│   │   │   └── AuthContext.jsx
+│   │   ├── index.css
+│   │   ├── lib
+│   │   │   └── utils.js
+│   │   ├── main.jsx
+│   │   ├── pages
+│   │   │   ├── About.jsx
+│   │   │   ├── Contact.jsx
+│   │   │   ├── Dashboard.jsx
+│   │   │   ├── EditPet.jsx
+│   │   │   ├── ExplorePets.jsx
+│   │   │   ├── FAQ.jsx
+│   │   │   ├── Home.jsx
+│   │   │   ├── LikedPets.jsx
+│   │   │   ├── ListPets.jsx
+│   │   │   ├── Login.jsx
+│   │   │   ├── ManagePets.jsx
+│   │   │   └── Signup.jsx
+│   │   └── services
+│   │       ├── api.jsx
+│   │       └── petapi.jsx
 │   ├── tailwind.config.js
 │   └── vite.config.js
 ├── README.md
 └── server
-    ├── node_modules
+    ├── models
+    │   ├── index.js
+    │   ├── pet.js
+    │   ├── user
+    │   │   ├── adopter.js
+    │   │   └── rehomer.js
+    │   └── user.js
     ├── package.json
     ├── package-lock.json
-    └── server.js
+    ├── server.js
+    └── uploads
+        └── ...
 ```
 - Vite
 - Express
