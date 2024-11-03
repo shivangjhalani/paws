@@ -11,8 +11,8 @@ const ProtectedRoute = ({
   if (requireAuth && !isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-  if (requireAuth && allowedUserTypes.length > 0 && 
-      !allowedUserTypes.includes(userType)) {
+  if (requireAuth && allowedUserTypes.length > 0 &&
+    !allowedUserTypes.includes(userType)) {
     return <Navigate to="/" replace />;
   }
   return children;

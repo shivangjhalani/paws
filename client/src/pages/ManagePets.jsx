@@ -41,7 +41,7 @@ const ManagePets = () => {
   const fetchPets = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8080/api/rehomer/pets', {
+      const response = await fetch('/api/rehomer/pets', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -64,7 +64,7 @@ const ManagePets = () => {
   const handleDelete = async (petId) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:8080/api/pets/${petId}`, {
+      const response = await fetch(`/api/pets/${petId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

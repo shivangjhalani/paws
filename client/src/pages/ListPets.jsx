@@ -36,7 +36,7 @@ const ListPets = () => {
     size: '',
     description: '',
     location: '',
-    adoptionFee: '',
+    adoptionFee: '0',
     healthStatus: {
       vaccinated: false,
       neutered: false,
@@ -102,7 +102,7 @@ const ListPets = () => {
       });
       formDataToSend.append('petData', JSON.stringify(formData));
 
-      const response = await fetch('http://localhost:8080/api/pets', {
+      const response = await fetch('/api/pets', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

@@ -14,7 +14,7 @@ const DashboardLayout = ({ children, links }) => {
     <div className="container mx-auto p-6">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {/* Sidebar Navigation */}
-        <Card className="p-4 col-span-1">
+        <Card className="p-4 col-span-1 h-fit">
           <nav className="space-y-2">
             {links.map((link) => (
               <Link

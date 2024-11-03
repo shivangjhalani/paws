@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '../context/AuthContext';
+import { X } from 'lucide-react';
 
 const EditPet = () => {
   const { id } = useParams();
@@ -40,20 +41,19 @@ const EditPet = () => {
 
   const [images, setImages] = useState([]);
   const [existingImages, setExistingImages] = useState([]);
+  const [imagePreview, setImagePreview] = useState([]);
 
-  // Redirect if not authenticated or not a rehomer
   useEffect(() => {
     if (!loading && (!isAuthenticated || userType !== 'rehomer')) {
       navigate('/login');
     }
   }, [loading, isAuthenticated, userType, navigate]);
 
-  // Fetch pet data on component mount
   useEffect(() => {
     const fetchPetData = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`http://localhost:8080/api/pets/${id}`, {
+        const response = await fetch(`/api/pets/${id}`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -65,8 +65,12 @@ const EditPet = () => {
 
         const data = await response.json();
         setFormData(data);
-        if (data.images) {
-          setExistingImages(data.images);
+        if (data.images && Array.isArray(data.images)) {
+          // Ensure images are absolute URLs
+          const fullUrls = data.images.map(img =>
+            img.startsWith('http') ? img : `${img}`
+          );
+          setExistingImages(fullUrls);
         }
       } catch (err) {
         setError('Failed to load pet data. Please try again later.');
@@ -106,11 +110,21 @@ const EditPet = () => {
       e.target.value = '';
       return;
     }
+
     setImages(files);
+
+    // Create preview URLs
+    const previews = files.map(file => URL.createObjectURL(file));
+    setImagePreview(previews);
   };
 
   const handleDeleteImage = (index) => {
     setExistingImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleDeletePreview = (index) => {
+    setImagePreview(prev => prev.filter((_, i) => i !== index));
+    setImages(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e) => {
@@ -128,18 +142,14 @@ const EditPet = () => {
     try {
       const formDataToSend = new FormData();
 
-      // Append new images if any were selected
-      if (images.length > 0) {
-        images.forEach(image => {
-          formDataToSend.append('images', image);
-        });
-      }
+      images.forEach(image => {
+        formDataToSend.append('images', image);
+      });
 
-      // Add the pet data and existing images
       formDataToSend.append('petData', JSON.stringify(formData));
       formDataToSend.append('existingImages', JSON.stringify(existingImages));
 
-      const response = await fetch(`http://localhost:8080/api/pets/${id}`, {
+      const response = await fetch(`/api/pets/${id}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -163,7 +173,6 @@ const EditPet = () => {
       setIsLoading(false);
     }
   };
-
 
   if (loading || isLoading) {
     return <div>Loading...</div>;
@@ -288,33 +297,63 @@ const EditPet = () => {
                 />
               </div>
 
-              {/* Images */}
-              <div className="space-y-2">
-                <Label htmlFor="images">Update Pet Images (up to 5)</Label>
-                {existingImages.map((img, index) => (
-                  <div key={index} className="relative">
-                    <img
-                      src={img}
-                      alt={`Pet ${index + 1}`}
-                      className="w-24 h-24 object-cover rounded"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteImage(index)}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
-                    >
-                      ×
-                    </button>
+              <div className="space-y-4 mb-6">
+                <Label className="text-lg font-semibold">Current Images</Label>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                  {existingImages.map((img, index) => (
+                    <div key={`existing-${index}`} className="relative group">
+                      <img
+                        src={img}
+                        alt={`Pet ${index + 1}`}
+                        className="w-full h-32 object-cover rounded-lg"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteImage(index)}
+                        className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-4">
+                  <Label htmlFor="images">Add New Images</Label>
+                  <Input
+                    id="images"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageChange}
+                    className="mt-2"
+                  />
+                  <p className="text-sm text-gray-500 mt-1">Maximum 5 images allowed</p>
+                </div>
+
+                {imagePreview.length > 0 && (
+                  <div className="mt-4">
+                    <Label className="text-lg font-semibold">New Images Preview</Label>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-2">
+                      {imagePreview.map((preview, index) => (
+                        <div key={`preview-${index}`} className="relative group">
+                          <img
+                            src={preview}
+                            alt={`Preview ${index + 1}`}
+                            className="w-full h-32 object-cover rounded-lg"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleDeletePreview(index)}
+                            className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1"
+                          >
+                            <X size={16} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                ))}
-                <Input
-                  id="images"
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={handleImageChange}
-                />
-                <p className="text-sm text-gray-500">Upload new images to replace the current ones (Maximum 5 images)</p>
+                )}
               </div>
 
               {/* Location and Fee */}

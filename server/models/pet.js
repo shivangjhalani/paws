@@ -56,7 +56,7 @@ const petSchema = new mongoose.Schema({
   status: {
     type: String,
     required: true,
-    enum: ['available', 'pending', 'adopted'],
+    enum: ['available', 'adopted'],
     default: 'available'
   },
   rehomerId: {
@@ -71,7 +71,8 @@ const petSchema = new mongoose.Schema({
   adoptionFee: {
     type: Number,
     required: true,
-    min: 0
+    min: 0,
+    default: 0
   },
   createdAt: {
     type: Date,

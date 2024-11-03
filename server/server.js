@@ -19,7 +19,10 @@ app.use(express.json());
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
-  destination: './uploads/',
+  destination: function(req, file, cb) {
+    const uploadPath = path.join(__dirname, 'uploads');
+    cb(null, uploadPath);
+  },
   filename: function(req, file, cb) {
     cb(null, 'pet-' + Date.now() + path.extname(file.originalname));
   }
@@ -47,7 +50,7 @@ function checkFileType(file, cb) {
 }
 
 // Serve uploaded files statically
-app.use('/uploads', express.static('uploads'));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // MongoDB connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://shivang:092004@paws.3fngq.mongodb.net/?retryWrites=true&w=majority&appName=paws')
