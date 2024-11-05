@@ -34,6 +34,11 @@ const LikedPets = () => {
   const fetchLikedPets = async () => {
     try {
       const data = await pets.getLiked();
+      // Ensure the data is populated with rehomer information
+      if (!data[0]?.rehomerId?.email) {
+        console.error('Rehomer information not populated:', data);
+        setError('Unable to load complete pet information. Please try again.');
+      }
       setLikedPets(data);
       setError(null);
     } catch (err) {
@@ -53,6 +58,28 @@ const LikedPets = () => {
       setError('Failed to unlike pet. Please try again.');
       console.error('Error unliking pet:', err);
     }
+  };
+
+  const ContactInfo = ({ rehomer }) => {
+    if (!rehomer) return null;
+    console.log(rehomer)
+    
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <MapPin className="w-5 h-5 text-gray-500" />
+          <span>{rehomer.location || 'Location not available'}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Phone className="w-5 h-5 text-gray-500" />
+          <span>{rehomer.phone || 'Phone not available'}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Mail className="w-5 h-5 text-gray-500" />
+          <span>{rehomer.email || 'Email not available'}</span>
+        </div>
+      </div>
+    );
   };
 
   if (loading) {
@@ -84,7 +111,7 @@ const LikedPets = () => {
       {likedPets.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-lg text-gray-600">
-            You haven&apost liked any pets yet. Explore available pets to find your perfect companion!
+            You haven't liked any pets yet. Explore available pets to find your perfect companion!
           </p>
         </div>
       ) : (
@@ -114,7 +141,7 @@ const LikedPets = () => {
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm font-medium text-gray-500">Type</p>
-                      <p className="text-sm">{pet.species || pet.type}</p>
+                      <p className="text-sm">{pet.species}</p>
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-500">Breed</p>
@@ -138,7 +165,7 @@ const LikedPets = () => {
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-500">Location</p>
-                      <p className="text-sm">{pet.rehomerId?.location}</p>
+                      <p className="text-sm">{pet.location}</p>
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-500">Status</p>
@@ -161,23 +188,10 @@ const LikedPets = () => {
                     <DialogHeader>
                       <DialogTitle>Rehomer Details</DialogTitle>
                     </DialogHeader>
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="w-5 h-5 text-gray-500" />
-                        <span>{pet.rehomerId?.location}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Phone className="w-5 h-5 text-gray-500" />
-                        <span>{pet.rehomerId?.phone}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Mail className="w-5 h-5 text-gray-500" />
-                        <span>{pet.rehomerId?.email}</span>
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-2">About {pet.name}</h4>
-                        <p className="text-sm text-gray-600">{pet.description}</p>
-                      </div>
+                    <ContactInfo rehomer={pet.rehomerId} />
+                    <div>
+                      <h4 className="font-semibold mb-2">About {pet.name}</h4>
+                      <p className="text-sm text-gray-600">{pet.description}</p>
                     </div>
                   </DialogContent>
                 </Dialog>

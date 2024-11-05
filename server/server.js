@@ -399,7 +399,7 @@ app.get('/api/liked-pets', authenticateToken, async (req, res) => {
         path: 'likedPets',
         populate: {
           path: 'rehomerId',
-          select: 'name location'
+          select: 'name location email phone'  // Added email and phone here
         }
       });
 
