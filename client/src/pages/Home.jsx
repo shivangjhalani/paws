@@ -28,34 +28,10 @@ export default function Home() {
     }
   ];
 
-  const recentPets = [
-    {
-      name: "Max",
-      breed: "Golden Retriever",
-      age: "2 years",
-      location: "New York, NY",
-      image: "/api/placeholder/300/200"
-    },
-    {
-      name: "Luna",
-      breed: "Siberian Husky",
-      age: "1 year",
-      location: "Los Angeles, CA",
-      image: "/api/placeholder/300/200"
-    },
-    {
-      name: "Bella",
-      breed: "German Shepherd",
-      age: "3 years",
-      location: "Chicago, IL",
-      image: "/api/placeholder/300/200"
-    }
-  ];
-
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <div className="w-full max-w-7xl mx-auto px-4 py-12">
+      <div className="w-full flex justify-center max-w-7xl mx-auto px-4 py-12">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
           <div className="flex flex-col space-y-6 lg:w-1/2">
             <Badge className="w-fit" variant="secondary">🎉 Over 10,000 pets found new homes!</Badge>
