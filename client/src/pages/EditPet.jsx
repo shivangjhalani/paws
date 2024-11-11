@@ -23,6 +23,7 @@ const EditPet = () => {
     age: '',
     gender: '',
     size: '',
+    status: '',
     description: '',
     location: '',
     adoptionFee: '',
@@ -470,6 +471,21 @@ const EditPet = () => {
                     <option value="low">Low</option>
                     <option value="medium">Medium</option>
                     <option value="high">High</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="status">Adoption Status</Label>
+                  <select
+                    id="status"
+                    name="status"
+                    value={formData.status}
+                    onChange={handleInputChange}
+                    className="w-full p-2 border rounded"
+                    required
+                  >
+                    <option value="available">Available</option>
+                    <option value="adopted">Adopted</option>
                   </select>
                 </div>
               </div>

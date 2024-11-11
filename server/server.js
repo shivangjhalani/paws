@@ -53,7 +53,7 @@ function checkFileType(file, cb) {
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // MongoDB connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017')
+mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://shivang:092004@paws.3fngq.mongodb.net/?retryWrites=true&w=majority&appName=paws')
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
 
@@ -271,8 +271,11 @@ app.delete('/api/pets/:id', authenticateToken, async (req, res) => {
 app.get('/api/pets', async (req, res) => {
   try {
     const pets = await Pet.find({ status: 'available' })
-      .populate('rehomerId', 'name location');
-    res.json(pets);
+      .populate('rehomerId', 'name location')
+      .select('species breed name size age gender images location description status healthStatus adoptionFee behavior');
+    
+    const validPets = pets.filter(pet => pet && pet.species);
+    res.json(validPets);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching pets', error: error.message });
   }
@@ -387,7 +390,7 @@ app.delete('/api/pets/:id/like', authenticateToken, async (req, res) => {
   }
 });
 
-// Get liked pets
+// Get liked
 app.get('/api/liked-pets', authenticateToken, async (req, res) => {
   try {
     if (req.user.userType !== 'adopter') {

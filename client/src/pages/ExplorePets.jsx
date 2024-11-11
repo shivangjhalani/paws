@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Heart, HeartOff } from 'lucide-react';
+import { Heart, HeartOff, Activity, Baby, Dog, Cross, Syringe } from 'lucide-react';
 import {
   Card,
   CardContent,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { useAuth } from '../context/AuthContext';
 import { pets } from '../services/api';
 import PetImages from '../components/PetImages';
+import FilterDialog from '../components/FilterDialog';
 
 const ExplorePets = () => {
   const [availablePets, setAvailablePets] = useState([]);
@@ -19,12 +20,82 @@ const ExplorePets = () => {
   const [error, setError] = useState(null);
   const { userType, isAuthenticated } = useAuth();
 
+  const [filters, setFilters] = useState({});
+  const [filteredPets, setFilteredPets] = useState([]);
+
+  const handleApplyFilters = (newFilters) => {
+    setFilters(newFilters);
+
+    let filtered = [...availablePets];
+
+    // Apply filters
+    if (newFilters.species !== 'all') {
+      filtered = filtered.filter(pet =>
+        (pet.species || pet.type)?.toLowerCase() === newFilters.species
+      );
+    }
+    if (newFilters.gender !== 'all') {
+      filtered = filtered.filter(pet =>
+        pet.gender?.toLowerCase() === newFilters.gender
+      );
+    }
+    if (newFilters.size !== 'all') {
+      filtered = filtered.filter(pet =>
+        pet.size?.toLowerCase() === newFilters.size?.toLowerCase()
+      );
+    }
+    if (newFilters.activityLevel !== 'all') {
+      filtered = filtered.filter(pet =>
+        pet.behavior?.activityLevel?.toLowerCase() === newFilters.activityLevel
+      );
+    }
+    if (newFilters.goodWithKids) {
+      filtered = filtered.filter(pet => pet.behavior?.goodWithKids === true);
+    }
+    if (newFilters.goodWithPets) {
+      filtered = filtered.filter(pet => pet.behavior?.goodWithPets === true);
+    }
+    if (newFilters.vaccinated) {
+      filtered = filtered.filter(pet => pet.healthStatus?.vaccinated === true);
+    }
+    if (newFilters.neutered) {
+      filtered = filtered.filter(pet => pet.healthStatus?.neutered === true);
+    }
+
+    // Apply sorting
+    if (newFilters.ageSort !== 'default') {
+      filtered.sort((a, b) => {
+        if (newFilters.ageSort === 'asc') {
+          return (a.age || 0) - (b.age || 0);
+        } else {
+          return (b.age || 0) - (a.age || 0);
+        }
+      });
+    }
+
+    setFilteredPets(filtered);
+  };
+
+  useEffect(() => {
+    if (availablePets.length > 0) {
+      setFilteredPets(availablePets);
+    }
+  }, [availablePets]);
   useEffect(() => {
     fetchPets();
     if (isAuthenticated && userType === 'adopter') {
       fetchLikedPets();
     }
   }, [isAuthenticated, userType]);
+
+  const HealthBadge = ({ condition, label, icon: Icon }) => (
+    condition && (
+      <Badge variant="secondary" className="flex items-center gap-1">
+        <Icon className="w-3 h-3" />
+        {label}
+      </Badge>
+    )
+  );
 
   const fetchPets = async () => {
     try {
@@ -96,68 +167,73 @@ const ExplorePets = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h2 className="text-2xl font-bold mb-6">Available Pets</h2>
-      
+      <div className="flex justify-between items-center mb-8">
+        <h2 className="text-2xl font-medium text-gray-900">Available Pets</h2>
+        <FilterDialog onApplyFilters={handleApplyFilters} />
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {availablePets.map((pet) => (
-          <Card key={pet._id} className="flex flex-col h-full">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex justify-between items-center">
-                <span className="text-xl font-semibold">{pet.name}</span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleLikeToggle(pet._id)}
-                  className={`${likedPets.includes(pet._id) ? 'text-red-500' : 'text-gray-400'} hover:text-red-500`}
-                >
-                  {likedPets.includes(pet._id) ? (
-                    <Heart className="w-6 h-6 fill-current" />
-                  ) : (
-                    <HeartOff className="w-6 h-6" />
-                  )}
-                </Button>
-              </CardTitle>
-            </CardHeader>
-            
-            <CardContent className="flex-grow">
-              <div className="mb-4 aspect-square">
-                <PetImages petId={pet._id} />
-              </div>
-              
-              <div className="space-y-2 mt-4">
-                <div className="grid grid-cols-2 gap-2">
+        {filteredPets.map((pet) => (
+          <Card key={pet._id} className="overflow-hidden border-none shadow-sm hover:shadow-md transition-shadow duration-200">
+            <div className="relative aspect-square">
+              <PetImages petId={pet._id} />
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handleLikeToggle(pet._id)}
+                className={`absolute top-4 right-4 bg-white/80 backdrop-blur-sm hover:bg-white ${
+                  likedPets.includes(pet._id) ? 'text-red-500' : 'text-gray-600'
+                }`}
+              >
+                {likedPets.includes(pet._id) ? (
+                  <Heart className="w-5 h-5 fill-current" />
+                ) : (
+                  <HeartOff className="w-5 h-5" />
+                )}
+              </Button>
+            </div>
+
+            <CardContent className="p-4">
+              <div className="space-y-4">
+                <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-sm font-medium text-gray-500">Type</p>
-                    <p className="text-sm">{pet.species || pet.type}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">Breed</p>
-                    <p className="text-sm">{pet.breed}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">Age</p>
-                    <p className="text-sm">{pet.age} years</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">Location</p>
-                    <p className="text-sm">{pet.rehomerId?.location}</p>
+                    <h3 className="text-lg font-medium text-gray-900">{pet.name}</h3>
+                    <p className="text-sm text-gray-500">
+                      {pet.breed} • {pet.age} years
+                    </p>
                   </div>
                 </div>
+
+                <div className="flex flex-wrap gap-1.5">
+                  {pet.behavior?.goodWithKids && (
+                    <Badge variant="outline" className="text-xs">
+                      Good with Kids
+                    </Badge>
+                  )}
+                  {pet.behavior?.goodWithPets && (
+                    <Badge variant="outline" className="text-xs">
+                      Good with Pets
+                    </Badge>
+                  )}
+                  {pet.behavior?.activityLevel && (
+                    <Badge variant="outline" className="text-xs">
+                      Activity level: {pet.behavior.activityLevel}
+                    </Badge>
+                  )}
+                </div>
+
+                <p className="text-sm text-gray-600 line-clamp-2">
+                  {pet.description}
+                </p>
               </div>
             </CardContent>
-            
-            <CardFooter className="border-t pt-4">
-              <p className="text-sm text-muted-foreground line-clamp-2">
-                {pet.description}
-              </p>
-            </CardFooter>
           </Card>
         ))}
       </div>
-      
-      {availablePets.length === 0 && (
+
+      {filteredPets.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-lg text-gray-600">No pets available at the moment.</p>
+          <p className="text-gray-600">No pets available at the moment.</p>
         </div>
       )}
     </div>
