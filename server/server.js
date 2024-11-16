@@ -5,10 +5,8 @@ const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
-require('dotenv').config();
 
-
-// Import models
+// MongoDB models
 const { User, Pet, Adopter, Rehomer } = require('./models');
 
 const app = express();
@@ -19,11 +17,11 @@ app.use(express.json());
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
-  destination: function(req, file, cb) {
+  destination: (req, file, cb) => {
     const uploadPath = path.join(__dirname, 'uploads');
     cb(null, uploadPath);
   },
-  filename: function(req, file, cb) {
+  filename: (req, file, cb) => {
     cb(null, 'pet-' + Date.now() + path.extname(file.originalname));
   }
 });
@@ -31,7 +29,7 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage: storage,
   limits: { fileSize: 10000000 }, // 10MB limit
-  fileFilter: function(req, file, cb) {
+  fileFilter: (req, file, cb) => {
     checkFileType(file, cb);
   }
 }).array('images', 5); // Allow up to 5 images
@@ -53,7 +51,7 @@ function checkFileType(file, cb) {
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // MongoDB connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://shivang:092004@paws.3fngq.mongodb.net/?retryWrites=true&w=majority&appName=paws')
+mongoose.connect('mongodb+srv://shivang:092004@paws.3fngq.mongodb.net/?retryWrites=true&w=majority&appName=paws')
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
 
@@ -62,7 +60,7 @@ const authenticateToken = (req, res, next) => {
   const token = req.headers['authorization']?.split(' ')[1];
   if (!token) return res.status(401).json({ message: 'No token provided' });
 
-  jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key', (err, user) => {
+  jwt.verify(token, 'your-secret-key', (err, user) => {
     if (err) return res.status(403).json({ message: 'Invalid token' });
     req.user = user;
     next();
@@ -127,7 +125,7 @@ app.post('/api/login', async (req, res) => {
 
     const token = jwt.sign(
       { userId: user._id, userType: user.userType },
-      process.env.JWT_SECRET || 'your-secret-key',
+      'your-secret-key',
       { expiresIn: '24h' }
     );
 
@@ -273,7 +271,7 @@ app.get('/api/pets', async (req, res) => {
     const pets = await Pet.find({ status: 'available' })
       .populate('rehomerId', 'name location')
       .select('species breed name size age gender images location description status healthStatus adoptionFee behavior');
-    
+
     const validPets = pets.filter(pet => pet && pet.species);
     res.json(validPets);
   } catch (error) {
@@ -390,7 +388,7 @@ app.delete('/api/pets/:id/like', authenticateToken, async (req, res) => {
   }
 });
 
-// Get liked
+// Get liked pets
 app.get('/api/liked-pets', authenticateToken, async (req, res) => {
   try {
     if (req.user.userType !== 'adopter') {
@@ -402,7 +400,7 @@ app.get('/api/liked-pets', authenticateToken, async (req, res) => {
         path: 'likedPets',
         populate: {
           path: 'rehomerId',
-          select: 'name location email phone'  // Added email and phone here
+          select: 'name location email phone'
         }
       });
 
@@ -462,7 +460,7 @@ app.put('/api/profile', authenticateToken, async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 8080;
+const PORT = 8080;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
