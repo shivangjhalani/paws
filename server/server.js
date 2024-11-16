@@ -19,7 +19,7 @@ app.use(express.json());
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadPath = path.join(__dirname, 'uploads');
-    cb(null, uploadPath);
+    cb(null, uploadPath); // cb(error, path)
   },
   filename: (req, file, cb) => {
     cb(null, 'pet-' + Date.now() + path.extname(file.originalname));
@@ -32,7 +32,7 @@ const upload = multer({
   fileFilter: (req, file, cb) => {
     checkFileType(file, cb);
   }
-}).array('images', 5); // Allow up to 5 images
+}).array('images', 5); // 'images' is the feild name expected for frontend form, and up to 5 images are allowed
 
 // Check file type
 function checkFileType(file, cb) {
@@ -60,7 +60,7 @@ const authenticateToken = (req, res, next) => {
   const token = req.headers['authorization']?.split(' ')[1];
   if (!token) return res.status(401).json({ message: 'No token provided' });
 
-  jwt.verify(token, 'your-secret-key', (err, user) => {
+  jwt.verify(token, 'my-super-duper-hidden-secret-key', (err, user) => {
     if (err) return res.status(403).json({ message: 'Invalid token' });
     req.user = user;
     next();
@@ -125,7 +125,7 @@ app.post('/api/login', async (req, res) => {
 
     const token = jwt.sign(
       { userId: user._id, userType: user.userType },
-      'your-secret-key',
+      'my-super-duper-hidden-secret-key',
       { expiresIn: '24h' }
     );
 
@@ -142,8 +142,8 @@ app.post('/api/login', async (req, res) => {
 
 // PET ROUTES
 
-app.post('/api/pets', authenticateToken, (req, res) => {
-  upload(req, res, async (err) => {
+// Create new pet listing
+app.post('/api/pets', authenticateToken, (req, res) => { upload(req, res, async (err) => {
     if (err) {
       return res.status(400).json({ message: err });
     }
