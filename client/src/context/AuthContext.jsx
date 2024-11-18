@@ -2,10 +2,8 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../services/api';
 
-// Create the context
 const AuthContext = createContext(null);
 
-// Custom hook to use the auth context
 const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {

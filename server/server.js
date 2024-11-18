@@ -143,7 +143,8 @@ app.post('/api/login', async (req, res) => {
 // PET ROUTES
 
 // Create new pet listing
-app.post('/api/pets', authenticateToken, (req, res) => { upload(req, res, async (err) => {
+app.post('/api/pets', authenticateToken, (req, res) => {
+  upload(req, res, async (err) => {
     if (err) {
       return res.status(400).json({ message: err });
     }
