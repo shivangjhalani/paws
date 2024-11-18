@@ -35,6 +35,11 @@ const LikedPets = () => {
   const fetchLikedPets = async () => {
     try {
       const data = await pets.getLiked();
+      if (data.length === 0) {
+        setLikedPets([]);
+        setError(null);
+        return;
+      }
       if (!data[0]?.rehomerId?.email) {
         console.error('Rehomer information not populated:', data);
         setError('Unable to load complete pet information. Please try again.');
@@ -62,7 +67,7 @@ const LikedPets = () => {
 
   const ContactInfo = ({ rehomer }) => {
     if (!rehomer) return null;
-    
+
     return (
       <div className="space-y-4">
         <div className="flex items-center gap-2">

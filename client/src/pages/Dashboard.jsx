@@ -6,6 +6,7 @@ import LikedPets from './LikedPets';
 import ListPets from './ListPets';
 import ManagePets from './ManagePets';
 import EditPet from './EditPet';
+import ProfileUpdate from './ProfileUpdate';
 
 const DashboardLayout = ({ children, links }) => {
   const location = useLocation();
@@ -54,17 +55,7 @@ export const AdopterDashboard = () => {
   return (
     <DashboardLayout links={links}>
       <Routes>
-        <Route
-          index
-          element={
-            <div>
-              <h1 className="text-2xl font-bold mb-4">Welcome, {user?.name}!</h1>
-              <p className="text-muted-foreground">
-                Browse available pets, like your favorites, and start your adoption journey.
-              </p>
-            </div>
-          }
-        />
+        <Route path="" element={<ProfileUpdate />} />
         <Route path="explore" element={<ExplorePets />} />
         <Route path="liked" element={<LikedPets />} />
       </Routes>
@@ -84,17 +75,7 @@ export const RehomerDashboard = () => {
   return (
     <DashboardLayout links={links}>
       <Routes>
-        <Route
-          index
-          element={
-            <div>
-              <h1 className="text-2xl font-bold mb-4">Welcome, {user?.name}!</h1>
-              <p className="text-muted-foreground">
-                List pets for adoption and manage your existing listings.
-              </p>
-            </div>
-          }
-        />
+        <Route path="" element={<ProfileUpdate />} />
         <Route path="list" element={<ListPets />} />
         <Route path="edit/:id" element={<EditPet />} />
         <Route path="manage" element={<ManagePets />} />
