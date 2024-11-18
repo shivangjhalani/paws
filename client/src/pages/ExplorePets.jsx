@@ -166,9 +166,9 @@ const ExplorePets = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto">
       <div className="flex justify-between items-center mb-8">
-        <h2 className="text-2xl font-medium text-gray-900">Available Pets</h2>
+        <h2 className="text-2xl font-bold mb-6">Explore Pets</h2>
         <FilterDialog onApplyFilters={handleApplyFilters} />
       </div>
 
@@ -181,9 +181,8 @@ const ExplorePets = () => {
                 variant="ghost"
                 size="icon"
                 onClick={() => handleLikeToggle(pet._id)}
-                className={`absolute top-4 right-4 bg-white/80 backdrop-blur-sm hover:bg-white ${
-                  likedPets.includes(pet._id) ? 'text-red-500' : 'text-gray-600'
-                }`}
+                className={`absolute top-4 right-4 bg-white/80 backdrop-blur-sm hover:bg-white ${likedPets.includes(pet._id) ? 'text-red-500' : 'text-gray-600'
+                  }`}
               >
                 {likedPets.includes(pet._id) ? (
                   <Heart className="w-5 h-5 fill-current" />
